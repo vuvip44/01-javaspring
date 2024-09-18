@@ -18,8 +18,6 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
-import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
-import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
 import org.springframework.security.web.SecurityFilterChain;
 
 import javax.crypto.SecretKey;
@@ -43,8 +41,9 @@ public class SecurityConfiguration {
             throws Exception {
         http
                 .csrf(f->f.disable())
+                .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/home","/login").permitAll()
+                        .requestMatchers("/home","/","/login").permitAll()
                         .anyRequest().authenticated()
 
                 )
@@ -88,12 +87,10 @@ public class SecurityConfiguration {
 
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
-        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new
-                JwtGrantedAuthoritiesConverter();
+        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
         grantedAuthoritiesConverter.setAuthorityPrefix("");
         grantedAuthoritiesConverter.setAuthoritiesClaimName("vuviet");
-        JwtAuthenticationConverter jwtAuthenticationConverter = new
-                JwtAuthenticationConverter();
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
         return jwtAuthenticationConverter;
     }

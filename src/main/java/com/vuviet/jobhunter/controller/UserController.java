@@ -1,14 +1,18 @@
 package com.vuviet.jobhunter.controller;
 
+import com.vuviet.jobhunter.dto.ResultPaginationDTO;
 import com.vuviet.jobhunter.entity.User;
 import com.vuviet.jobhunter.service.UserService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class UserController {
@@ -21,7 +25,7 @@ public class UserController {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @PostMapping("/users/")
+    @PostMapping("/users")
     public ResponseEntity<User> createNewUser(@RequestBody @Valid User userDTO) {
         String hashPassword=this.passwordEncoder.encode(userDTO.getPassword());
         userDTO.setPassword(hashPassword);
@@ -42,13 +46,23 @@ public class UserController {
         return ResponseEntity.ok(userDTO);
     }
 
-    @GetMapping("/users/")
-    public ResponseEntity<List<User>> getAllUser() {
-        List<User> userDTOS = this.userService.getAllUser();
-        return ResponseEntity.ok(userDTOS);
+    @GetMapping("/users")
+    public ResponseEntity<ResultPaginationDTO> getAllUser(
+            @RequestParam("current") Optional<String> currentOptional,
+            @RequestParam("pageSize") Optional<String> pageSizeOptional
+            ) {
+        String sCurrent=currentOptional.isPresent()? currentOptional.get() : "";
+        String sPageSize=pageSizeOptional.isPresent()? pageSizeOptional.get():"";
+
+        int current=Integer.parseInt(sCurrent);
+        int pageSize=Integer.parseInt(sPageSize);
+
+        Pageable pageable= PageRequest.of(current-1,pageSize);
+
+        return ResponseEntity.ok(this.userService.getAllUser(pageable));
     }
 
-    @PutMapping("/users/")
+    @PutMapping("/users")
     public ResponseEntity<User> updateUser(@RequestBody User userDTO) {
         User userDTO1 = this.userService.updateUser(userDTO);
         return ResponseEntity.ok(userDTO1);
