@@ -2,6 +2,9 @@ package com.vuviet.jobhunter.repository;
 
 import com.vuviet.jobhunter.entity.Company;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.stereotype.Repository;
 
-public interface CompanyRepository extends JpaRepository<Company,Long> {
+@Repository
+public interface CompanyRepository extends JpaRepository<Company,Long>, JpaSpecificationExecutor<Company> {
 }

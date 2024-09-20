@@ -1,14 +1,14 @@
 package com.vuviet.jobhunter.service;
 
-import com.vuviet.jobhunter.dto.Meta;
-import com.vuviet.jobhunter.dto.ResultPaginationDTO;
+import com.vuviet.jobhunter.entity.dto.Meta;
+import com.vuviet.jobhunter.entity.dto.ResultPaginationDTO;
 import com.vuviet.jobhunter.entity.Company;
 import com.vuviet.jobhunter.repository.CompanyRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface CompanyService {
@@ -18,7 +18,7 @@ public interface CompanyService {
 
     Company update(Company companyDTO);
 
-    ResultPaginationDTO getAllCompanies(Pageable pageable);
+    ResultPaginationDTO getAllCompanies(Specification<Company> spec,Pageable pageable);
 
     Company getById(long id);
 }
@@ -57,13 +57,14 @@ class CompanyServiceImpl implements CompanyService{
     }
 
     @Override
-    public ResultPaginationDTO getAllCompanies(Pageable pageable) {
-        Page<Company> pageCompany=this.companyRepository.findAll(pageable);
+    public ResultPaginationDTO getAllCompanies(Specification<Company> spec,Pageable pageable) {
+        Page<Company> pageCompany=this.companyRepository.findAll(spec,pageable);
         ResultPaginationDTO rs=new ResultPaginationDTO();
         Meta meta=new Meta();
 
-        meta.setPage(pageCompany.getNumber()+1);
-        meta.setPageSize(pageCompany.getSize());
+        meta.setPage(pageable.getPageNumber()+1);
+        meta.setPageSize(pageable.getPageSize());
+
         meta.setPages(pageCompany.getTotalPages());
         meta.setTotal(pageCompany.getTotalElements());
 

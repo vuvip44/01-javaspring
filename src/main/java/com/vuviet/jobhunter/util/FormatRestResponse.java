@@ -1,6 +1,7 @@
 package com.vuviet.jobhunter.util;
 
-import com.vuviet.jobhunter.dto.RestResponse;
+import com.vuviet.jobhunter.util.annotation.ApiMessage;
+import com.vuviet.jobhunter.entity.dto.RestResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
@@ -32,7 +33,8 @@ public class FormatRestResponse implements ResponseBodyAdvice<Object> {
             return body;
         }else{
             //case success
-            res.setMessage("Call api success");
+            ApiMessage message=returnType.getMethodAnnotation(ApiMessage.class);
+            res.setMessage(message!=null?message.value():"Call api success");
             res.setData(body);
         }
         return res;

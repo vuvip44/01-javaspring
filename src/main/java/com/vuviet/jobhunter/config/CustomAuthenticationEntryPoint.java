@@ -1,7 +1,7 @@
 package com.vuviet.jobhunter.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.vuviet.jobhunter.dto.RestResponse;
+import com.vuviet.jobhunter.entity.dto.RestResponse;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
