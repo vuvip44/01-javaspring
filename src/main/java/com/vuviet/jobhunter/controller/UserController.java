@@ -1,11 +1,11 @@
 package com.vuviet.jobhunter.controller;
 
 import com.turkraft.springfilter.boot.Filter;
-import com.vuviet.jobhunter.entity.dto.ResCreateUser;
-import com.vuviet.jobhunter.entity.dto.ResUpdateUser;
-import com.vuviet.jobhunter.entity.dto.ResUserDTO;
+import com.vuviet.jobhunter.entity.response.ResCreateUserDTO;
+import com.vuviet.jobhunter.entity.response.ResUpdateUserDTO;
+import com.vuviet.jobhunter.entity.response.ResUserDTO;
 import com.vuviet.jobhunter.util.annotation.ApiMessage;
-import com.vuviet.jobhunter.entity.dto.ResultPaginationDTO;
+import com.vuviet.jobhunter.entity.response.ResultPaginationDTO;
 import com.vuviet.jobhunter.entity.User;
 import com.vuviet.jobhunter.service.UserService;
 import com.vuviet.jobhunter.util.error.IdInvalidException;
@@ -30,8 +30,8 @@ public class UserController {
     }
 
     @PostMapping("/users")
-    @ApiMessage("create user")
-    public ResponseEntity<ResCreateUser> createNewUser(@RequestBody @Valid User user) throws IdInvalidException {
+    @ApiMessage("Create a user")
+    public ResponseEntity<ResCreateUserDTO> createNewUser(@RequestBody @Valid User user) throws IdInvalidException {
         boolean isEmailExist=this.userService.isEmailExist(user.getEmail());
         if(isEmailExist){
             throw new IdInvalidException("Email "+user.getEmail()+" đã tồn tại, vui lòng sử dụng email khác");
@@ -43,7 +43,7 @@ public class UserController {
     }
 
     @DeleteMapping("/users/{id}")
-    @ApiMessage("delete user")
+    @ApiMessage("Delete a user")
     public ResponseEntity<Void> deleteUser(@PathVariable("id") long id) throws IdInvalidException{
         User current=this.userService.getById(id);
         if(current==null){
@@ -56,7 +56,6 @@ public class UserController {
     @GetMapping("/users/{id}")
     @ApiMessage("get user by id")
     public ResponseEntity<ResUserDTO> getUserById(@PathVariable("id") long id) throws IdInvalidException{
-
         User current=this.userService.getById(id);
         if(current==null){
             throw new IdInvalidException("User có id = "+id+" không tồn tại");
@@ -70,14 +69,12 @@ public class UserController {
             @Filter Specification<User> spec,
             Pageable pageable
             ) {
-        return ResponseEntity.ok(this.userService.getAllUser(spec,pageable));
+        return ResponseEntity.ok(this.userService.getAllUsers(spec,pageable));
     }
 
-
-
     @PutMapping("/users")
-    @ApiMessage("update user")
-    public ResponseEntity<ResUpdateUser> updateUser(@RequestBody User userDTO) throws IdInvalidException{
+    @ApiMessage("Update a user")
+    public ResponseEntity<ResUpdateUserDTO> updateUser(@RequestBody User userDTO) throws IdInvalidException{
         User user = this.userService.updateUser(userDTO);
         if(user==null){
             throw new IdInvalidException("User có id = "+userDTO.getId()+" không tồn tại");

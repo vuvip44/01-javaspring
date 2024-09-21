@@ -1,4 +1,4 @@
-package com.vuviet.jobhunter.entity.dto;
+package com.vuviet.jobhunter.entity.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;

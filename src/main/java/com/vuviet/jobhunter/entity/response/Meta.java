@@ -1,4 +1,4 @@
-package com.vuviet.jobhunter.entity.dto;
+package com.vuviet.jobhunter.entity.response;
 
 import lombok.Data;
 

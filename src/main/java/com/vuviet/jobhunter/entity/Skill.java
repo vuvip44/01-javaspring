@@ -10,22 +10,15 @@ import java.time.Instant;
 import java.util.List;
 
 @Entity
+@Table(name = "skills")
 @Data
-@Table(name = "companies")
-public class Company {
+public class Skill {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @NotBlank(message = "Không được để trống tên")
+    @NotBlank(message = "Không được để tên trống")
     private String name;
-
-    @Column(columnDefinition = "MEDIUMTEXT")
-    private String description;
-
-    private String address;
-
-    private String logo;
 
     private Instant createdAt;
 
@@ -35,24 +28,21 @@ public class Company {
 
     private String updatedBy;
 
-    @OneToMany(mappedBy = "company",fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY,mappedBy = "skills")
     @JsonIgnore
-    private List<User> users;
+    private List<Job> jobs;
 
-    @OneToMany(mappedBy = "company",fetch = FetchType.LAZY)
-    @JsonIgnore
-    List<Job> jobs;
 
     @PrePersist
     public void handleBeforeCreate(){
         this.createdBy= SecurityUtil.getCurrentUserLogin().isPresent()==true?
-            SecurityUtil.getCurrentUserLogin().get():"";
+                SecurityUtil.getCurrentUserLogin().get():"";
         this.createdAt=Instant.now();
     }
 
     @PreUpdate
     public void handleBeforeUpdate(){
-        this.updatedBy=SecurityUtil.getCurrentUserLogin().isPresent()==true?
+        this.updatedBy= SecurityUtil.getCurrentUserLogin().isPresent()==true?
                 SecurityUtil.getCurrentUserLogin().get():"";
         this.updatedAt=Instant.now();
     }

@@ -1,8 +1,9 @@
 package com.vuviet.jobhunter.controller;
 
 import com.turkraft.springfilter.boot.Filter;
+import com.vuviet.jobhunter.repository.UserRepository;
 import com.vuviet.jobhunter.util.annotation.ApiMessage;
-import com.vuviet.jobhunter.entity.dto.ResultPaginationDTO;
+import com.vuviet.jobhunter.entity.response.ResultPaginationDTO;
 import com.vuviet.jobhunter.entity.Company;
 import com.vuviet.jobhunter.service.CompanyService;
 import jakarta.validation.Valid;
@@ -17,8 +18,11 @@ import org.springframework.web.bind.annotation.*;
 public class CompanyController {
     private final CompanyService companyService;
 
-    public CompanyController(CompanyService companyService) {
+
+
+    public CompanyController(CompanyService companyService, UserRepository userRepository) {
         this.companyService = companyService;
+
     }
 
     @PostMapping("/companies")
@@ -47,5 +51,12 @@ public class CompanyController {
     @ApiMessage("update company")
     public ResponseEntity<Company> updateCompany(@RequestBody Company companyDTO){
         return ResponseEntity.ok(this.companyService.update(companyDTO));
+    }
+
+    @DeleteMapping("/companies/{id}")
+    @ApiMessage("delete company")
+    public ResponseEntity<Void> deleteCompany(@PathVariable("id") long id){
+        this.companyService.deleteById(id);
+        return ResponseEntity.ok(null);
     }
 }

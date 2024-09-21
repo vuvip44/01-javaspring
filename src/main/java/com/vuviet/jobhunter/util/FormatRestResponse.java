@@ -1,7 +1,7 @@
 package com.vuviet.jobhunter.util;
 
 import com.vuviet.jobhunter.util.annotation.ApiMessage;
-import com.vuviet.jobhunter.entity.dto.RestResponse;
+import com.vuviet.jobhunter.entity.response.RestResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;

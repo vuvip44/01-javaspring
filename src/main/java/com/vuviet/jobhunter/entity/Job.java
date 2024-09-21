@@ -1,44 +1,42 @@
 package com.vuviet.jobhunter.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.vuviet.jobhunter.util.SecurityUtil;
-import com.vuviet.jobhunter.util.constant.GenderEnum;
+import com.vuviet.jobhunter.util.constant.LeveleEnum;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.time.Instant;
-
+import java.util.List;
 
 @Entity
-@Table(name="users")
+@Table(name = "jobs")
 @Data
-public class User {
+public class Job {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private  long id;
+    private long id;
 
     private String name;
 
-    @NotBlank(message = "email không được để trống")
-    private String email;
+    private double salary;
 
-    @NotBlank(message = "password không được để trống")
-    private String password;
-
-    private int age;
+    private int quantity;
 
     @Enumerated(EnumType.STRING)
-    private GenderEnum gender;
+    private LeveleEnum level;
 
-    private String address;
+    @Column(columnDefinition = "MEDIUMTEXT")
+    private String description;
 
-    private String refreshToken;
+    private Instant startDate;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
+    private Instant endDate;
+
+    private boolean active;
+
     private Instant createdAt;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
     private Instant updatedAt;
 
     private String createdBy;
@@ -48,6 +46,12 @@ public class User {
     @ManyToOne
     @JoinColumn(name = "company_id")
     private Company company;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JsonIgnoreProperties(value = {"jobs"})//bo thuoc tinh jobs nay o ben entity skill
+    @JoinTable(name="job_skill",joinColumns = @JoinColumn(name = "job_id"),
+    inverseJoinColumns = @JoinColumn(name = "skill_id"))
+    private List<Skill> skills;
 
     @PrePersist
     public void handleBeforeCreate(){
@@ -62,4 +66,6 @@ public class User {
                 SecurityUtil.getCurrentUserLogin().get():"";
         this.updatedAt=Instant.now();
     }
+
+
 }

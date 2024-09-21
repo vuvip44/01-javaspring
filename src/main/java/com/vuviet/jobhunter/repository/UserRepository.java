@@ -1,5 +1,6 @@
 package com.vuviet.jobhunter.repository;
 
+import com.vuviet.jobhunter.entity.Company;
 import com.vuviet.jobhunter.entity.User;
 
 import org.springframework.data.jpa.domain.Specification;
@@ -16,4 +17,5 @@ public interface UserRepository extends JpaRepository<User,Long>, JpaSpecificati
 
     boolean existsByEmail(String email);
 
+    List<User> findByCompany(Company company);
 }

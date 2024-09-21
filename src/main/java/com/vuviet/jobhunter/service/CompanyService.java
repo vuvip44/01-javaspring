@@ -1,14 +1,17 @@
 package com.vuviet.jobhunter.service;
 
-import com.vuviet.jobhunter.entity.dto.Meta;
-import com.vuviet.jobhunter.entity.dto.ResultPaginationDTO;
+import com.vuviet.jobhunter.entity.User;
+import com.vuviet.jobhunter.entity.response.Meta;
+import com.vuviet.jobhunter.entity.response.ResultPaginationDTO;
 import com.vuviet.jobhunter.entity.Company;
 import com.vuviet.jobhunter.repository.CompanyRepository;
+import com.vuviet.jobhunter.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface CompanyService {
@@ -26,8 +29,11 @@ public interface CompanyService {
 class CompanyServiceImpl implements CompanyService{
     private final CompanyRepository companyRepository;
 
-    CompanyServiceImpl(CompanyRepository companyRepository) {
+    private final UserRepository userRepository;
+
+    CompanyServiceImpl(CompanyRepository companyRepository, UserRepository userRepository) {
         this.companyRepository = companyRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -37,6 +43,14 @@ class CompanyServiceImpl implements CompanyService{
 
     @Override
     public void deleteById(long id) {
+        Optional<Company> companyOptional=this.companyRepository.findById(id);
+        if(companyOptional.isPresent()){
+            Company com=companyOptional.get();
+
+            //Tim tat ca nguoi dung trong cong ty nay
+            List<User> users=this.userRepository.findByCompany(com);
+            this.userRepository.deleteAll(users);
+        }
         this.companyRepository.deleteById(id);
     }
 

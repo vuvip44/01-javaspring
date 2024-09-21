@@ -43,7 +43,7 @@ public class SecurityConfiguration {
                 .csrf(f->f.disable())
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/home","/","api/v1/login").permitAll()
+                        .requestMatchers("/home","/","/api/v1/login").permitAll()
                         .anyRequest().authenticated()
 
                 )

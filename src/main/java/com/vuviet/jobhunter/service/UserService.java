@@ -1,9 +1,9 @@
 package com.vuviet.jobhunter.service;
 
-import com.vuviet.jobhunter.entity.dto.*;
+import com.vuviet.jobhunter.entity.Company;
+import com.vuviet.jobhunter.entity.response.*;
 import com.vuviet.jobhunter.entity.User;
 import com.vuviet.jobhunter.repository.UserRepository;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -19,7 +19,7 @@ public interface UserService {
 
     User updateUser(User userDTO);
 
-    ResultPaginationDTO getAllUser(Specification<User> spec,Pageable pageable);
+    ResultPaginationDTO getAllUsers(Specification<User> spec, Pageable pageable);
 
     User getById(long id);
 
@@ -29,11 +29,14 @@ public interface UserService {
 
     boolean isEmailExist(String email);
 
-    ResCreateUser convertToResCreateUser(User user);
+    ResCreateUserDTO convertToResCreateUser(User user);
 
-    ResUpdateUser convertToResUpdateUser(User user);
+    ResUpdateUserDTO convertToResUpdateUser(User user);
 
     ResUserDTO convertToResUser(User user);
+
+    void updateUserToken(String token,String email);
+
 }
 
 @Service
@@ -41,11 +44,14 @@ class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
-    UserServiceImpl(UserRepository userRepository) {
+    private final CompanyService companyService;
+
+    UserServiceImpl(UserRepository userRepository, CompanyService companyService) {
         this.userRepository = userRepository;
+        this.companyService = companyService;
     }
     @Override
-    public ResultPaginationDTO getAllUser(Specification<User> spec,Pageable pageable) {
+    public ResultPaginationDTO getAllUsers(Specification<User> spec, Pageable pageable) {
         Page<User> pageUser=this.userRepository.findAll(spec,pageable);
         ResultPaginationDTO rs = new ResultPaginationDTO();
         Meta mt = new Meta();
@@ -67,7 +73,10 @@ class UserServiceImpl implements UserService {
                         item.getAddress(),
                         item.getAge(),
                         item.getUpdatedAt(),
-                        item.getCreatedAt()))
+                        item.getCreatedAt(),
+                        new ResUserDTO.CompanyUser(
+                                item.getCompany() != null ? item.getCompany().getId() : 0,
+                                item.getCompany() != null ? item.getCompany().getName() : null)))
                 .collect(Collectors.toList());
 
         rs.setResult(listUser);
@@ -92,6 +101,10 @@ class UserServiceImpl implements UserService {
 
     @Override
     public User createUser(User user) {
+        if(user.getCompany()!=null){
+            Optional<Company> company= Optional.ofNullable(this.companyService.getById(user.getCompany().getId()));
+            user.setCompany(company.isPresent()?company.get():null);
+        }
         return this.userRepository.save(user);
     }
 
@@ -103,7 +116,10 @@ class UserServiceImpl implements UserService {
             user.setGender(userDTO.getGender());
             user.setAddress(userDTO.getAddress());
             user.setAge(userDTO.getAge());
-
+            if(userDTO.getCompany()!=null){
+                Optional<Company> company= Optional.ofNullable(this.companyService.getById(userDTO.getCompany().getId()));
+                user.setCompany(company.isPresent()?company.get():null);
+            }
             user=this.userRepository.save(user);
         }
         return user;
@@ -121,17 +137,77 @@ class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResCreateUser convertToResCreateUser(User user) {
-        return new ModelMapper().map(user, ResCreateUser.class);
+    public ResCreateUserDTO convertToResCreateUser(User user) {
+        ResCreateUserDTO res=new ResCreateUserDTO();
+        ResCreateUserDTO.CompanyUser companyUser=new ResCreateUserDTO.CompanyUser();
+
+        res.setId(user.getId());
+        res.setAddress(user.getAddress());
+        res.setEmail(user.getEmail());
+        res.setGender(user.getGender());
+        res.setAge(user.getAge());
+        res.setName(user.getName());
+        res.setCreatedAt(user.getCreatedAt());
+
+        if(user.getCompany()!=null){
+            companyUser.setId(user.getCompany().getId());
+            companyUser.setName(user.getCompany().getName());
+            res.setCompanyUser(companyUser);
+        }
+        return res;
     }
 
     @Override
-    public ResUpdateUser convertToResUpdateUser(User user) {
-        return new ModelMapper().map(user, ResUpdateUser.class);
+    public ResUpdateUserDTO convertToResUpdateUser(User user) {
+        ResUpdateUserDTO res=new ResUpdateUserDTO();
+        ResUpdateUserDTO.CompanyUser companyUser=new ResUpdateUserDTO.CompanyUser();
+
+        res.setId(user.getId());
+        res.setAddress(user.getAddress());
+        res.setAge(user.getAge());
+        res.setName(user.getName());
+        res.setGender(user.getGender());
+        res.setUpdatedAt(user.getUpdatedAt());
+
+        if(user.getCompany()!=null){
+            companyUser.setId(user.getCompany().getId());
+            companyUser.setName(user.getCompany().getName());
+            res.setCompanyUser(companyUser);
+        }
+        return res;
+
     }
 
     @Override
     public ResUserDTO convertToResUser(User user) {
-        return new ModelMapper().map(user,ResUserDTO.class);
+        ResUserDTO res=new ResUserDTO();
+        ResUserDTO.CompanyUser companyUser=new ResUserDTO.CompanyUser();
+
+        res.setId(user.getId());
+        res.setAddress(user.getAddress());
+        res.setEmail(user.getEmail());
+        res.setGender(user.getGender());
+        res.setAge(user.getAge());
+        res.setName(user.getName());
+        res.setCreatedAt(user.getCreatedAt());
+        res.setUpdatedAt(user.getUpdatedAt());
+
+        if(user.getCompany()!=null){
+            companyUser.setId(user.getCompany().getId());
+            companyUser.setName(user.getCompany().getName());
+            res.setCompanyUser(companyUser);
+        }
+        return res;
     }
+
+    @Override
+    public void updateUserToken(String token,String email) {
+        User currentUser=this.userRepository.getByEmail(email);
+        if(currentUser!=null){
+            currentUser.setRefreshToken(token);
+            this.userRepository.save(currentUser);
+        }
+
+    }
+
 }

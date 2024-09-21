@@ -1,6 +1,6 @@
 package com.vuviet.jobhunter.util.error;
 
-import com.vuviet.jobhunter.entity.dto.RestResponse;
+import com.vuviet.jobhunter.entity.response.RestResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
