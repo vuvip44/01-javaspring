@@ -34,7 +34,7 @@ public class SkillController {
 
     @PutMapping("/skills")
     @ApiMessage("Update a skill")
-    public ResponseEntity<Skill> updateSkill(@RequestBody Skill skillDTO) throws IdInvalidException{
+    public ResponseEntity<Skill> updateSkill(@RequestBody @Valid Skill skillDTO) throws IdInvalidException{
         boolean isNameExist=this.skillService.isSkillExist(skillDTO.getName());
         if(isNameExist){
             throw new IdInvalidException("Tên "+skillDTO.getName()+" đã tồn tại");

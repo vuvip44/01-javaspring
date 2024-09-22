@@ -49,7 +49,7 @@ public class CompanyController {
 
     @PutMapping("/companies")
     @ApiMessage("update company")
-    public ResponseEntity<Company> updateCompany(@RequestBody Company companyDTO){
+    public ResponseEntity<Company> updateCompany(@RequestBody @Valid Company companyDTO){
         return ResponseEntity.ok(this.companyService.update(companyDTO));
     }
 
