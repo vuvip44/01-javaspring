@@ -2,8 +2,9 @@ package com.vuviet.jobhunter.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.vuviet.jobhunter.util.SecurityUtil;
-import com.vuviet.jobhunter.util.constant.LeveleEnum;
+import com.vuviet.jobhunter.util.constant.LevelEnum;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.time.Instant;
@@ -17,14 +18,17 @@ public class Job {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @NotBlank(message = "name không được để trống")
     private String name;
 
-    private double salary;
+    @NotBlank(message = "location không được để trống")
+    private String location;
+
+    private int salary;
 
     private int quantity;
 
-    @Enumerated(EnumType.STRING)
-    private LeveleEnum level;
+    private LevelEnum level;
 
     @Column(columnDefinition = "MEDIUMTEXT")
     private String description;
