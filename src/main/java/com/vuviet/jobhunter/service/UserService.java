@@ -37,6 +37,7 @@ public interface UserService {
 
     void updateUserToken(String token,String email);
 
+    User getUserByRefreshTokenAndEmail(String token,String email);
 }
 
 @Service
@@ -208,6 +209,12 @@ class UserServiceImpl implements UserService {
             this.userRepository.save(currentUser);
         }
 
+    }
+
+    @Override
+    public User getUserByRefreshTokenAndEmail(String token, String email) {
+
+        return this.userRepository.findByRefreshTokenAndEmail(token, email);
     }
 
 }

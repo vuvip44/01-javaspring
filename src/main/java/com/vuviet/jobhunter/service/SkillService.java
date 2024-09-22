@@ -24,6 +24,7 @@ public interface SkillService {
     boolean isSkillExist(String name);
 
     void deleteSkill(long id);
+
 }
 
 @Service
