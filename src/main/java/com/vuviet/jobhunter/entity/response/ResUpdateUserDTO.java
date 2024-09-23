@@ -22,10 +22,20 @@ public class ResUpdateUserDTO {
 
     private CompanyUser companyUser;
 
+    private RoleUser role;
+
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
     public static class CompanyUser{
+        private long id;
+        private String name;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class RoleUser{
         private long id;
         private String name;
     }

@@ -6,7 +6,6 @@ import com.vuviet.jobhunter.entity.response.ResultPaginationDTO;
 import com.vuviet.jobhunter.service.PermissionService;
 import com.vuviet.jobhunter.util.annotation.ApiMessage;
 import com.vuviet.jobhunter.util.error.IdInvalidException;
-import jakarta.persistence.Id;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -54,9 +53,7 @@ public class PermissionController {
     @PutMapping("/permissions")
     @ApiMessage("Update a permission")
     public ResponseEntity<Permission> updatePermission(@RequestBody @Valid Permission permissionDTO) throws IdInvalidException{
-        if(this.permissionService.isPermissionExist(permissionDTO)){
-            throw new IdInvalidException("Permission này đã tồn tại");
-        }
+
         Permission permission=this.permissionService.getById(permissionDTO.getId());
         if(permission==null){
             throw new IdInvalidException("Id "+permissionDTO.getId()+" không tồn tại");

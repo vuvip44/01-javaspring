@@ -50,13 +50,13 @@ public class AuthController {
         ResLoginDTO res=new ResLoginDTO();
         User currentUser=this.userService.getByUsername(loginDTO.getUsername());
         if(currentUser!=null){
-            ResLoginDTO.UserLogin userLogin=new ResLoginDTO.UserLogin(currentUser.getId(),currentUser.getEmail(),currentUser.getName());
+            ResLoginDTO.UserLogin userLogin=new ResLoginDTO.UserLogin(currentUser.getId(),currentUser.getEmail(),currentUser.getName(),currentUser.getRole());
             res.setUser(userLogin);
         }
 
         //create token
-        String access_token=this.securityUtil.createAccessToken(authentication.getName(),res.getUser());
-        res.setAccess_token(access_token);
+        String access_token=this.securityUtil.createAccessToken(authentication.getName(),res);
+        res.setAccessToken(access_token);
 
         //create refresh token
         String refresh_token=this.securityUtil.createRefreshToken(loginDTO.getUsername(), res);
@@ -79,18 +79,21 @@ public class AuthController {
 
     @GetMapping("/auth/account")
     @ApiMessage("fetch account")
-    public ResponseEntity<ResLoginDTO.UserLogin> getAccount(){
+    public ResponseEntity<ResLoginDTO.UserGetAccount> getAccount(){
         String email=SecurityUtil.getCurrentUserLogin().isPresent()?
                 SecurityUtil.getCurrentUserLogin().get() : "";
 
         User currentUser=this.userService.getByUsername(email);
         ResLoginDTO.UserLogin userLogin=new ResLoginDTO.UserLogin();
+        ResLoginDTO.UserGetAccount userGetAccount=new ResLoginDTO.UserGetAccount();
         if(currentUser!=null){
             userLogin.setId(currentUser.getId());
             userLogin.setName(currentUser.getName());
             userLogin.setEmail(currentUser.getEmail());
+            userLogin.setRole(currentUser.getRole());
+            userGetAccount.setUser(userLogin);
         }
-        return ResponseEntity.ok(userLogin);
+        return ResponseEntity.ok(userGetAccount);
     }
 
     @GetMapping("/auth/refresh")
@@ -116,13 +119,13 @@ public class AuthController {
         ResLoginDTO res=new ResLoginDTO();
         User currentUser=this.userService.getByUsername(email);
         if(currentUser!=null){
-            ResLoginDTO.UserLogin userLogin=new ResLoginDTO.UserLogin(currentUser.getId(),currentUser.getEmail(),currentUser.getName());
+            ResLoginDTO.UserLogin userLogin=new ResLoginDTO.UserLogin(currentUser.getId(),currentUser.getEmail(),currentUser.getName(),currentUser.getRole());
             res.setUser(userLogin);
         }
 
         //create token
-        String access_token=this.securityUtil.createAccessToken(email,res.getUser());
-        res.setAccess_token(access_token);
+        String access_token=this.securityUtil.createAccessToken(email,res);
+        res.setAccessToken(access_token);
 
         //create refresh token
         String new_refresh_token=this.securityUtil.createRefreshToken(email, res);

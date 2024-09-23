@@ -1,8 +1,9 @@
 package com.vuviet.jobhunter.service;
 
 import com.vuviet.jobhunter.entity.Company;
-import com.vuviet.jobhunter.entity.response.*;
+import com.vuviet.jobhunter.entity.Role;
 import com.vuviet.jobhunter.entity.User;
+import com.vuviet.jobhunter.entity.response.*;
 import com.vuviet.jobhunter.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -42,12 +43,14 @@ public interface UserService {
 
 @Service
 class UserServiceImpl implements UserService {
+    private final RoleService roleService;
 
     private final UserRepository userRepository;
 
     private final CompanyService companyService;
 
-    UserServiceImpl(UserRepository userRepository, CompanyService companyService) {
+    UserServiceImpl(RoleService roleService, UserRepository userRepository, CompanyService companyService) {
+        this.roleService = roleService;
         this.userRepository = userRepository;
         this.companyService = companyService;
     }
@@ -65,20 +68,9 @@ class UserServiceImpl implements UserService {
 
         rs.setMeta(mt);
 
-        List<ResUserDTO> listUser = pageUser.getContent()
-                .stream().map(item -> new ResUserDTO(
-                        item.getId(),
-                        item.getEmail(),
-                        item.getName(),
-                        item.getGender(),
-                        item.getAddress(),
-                        item.getAge(),
-                        item.getUpdatedAt(),
-                        item.getCreatedAt(),
-                        new ResUserDTO.CompanyUser(
-                                item.getCompany() != null ? item.getCompany().getId() : 0,
-                                item.getCompany() != null ? item.getCompany().getName() : null)))
-                .collect(Collectors.toList());
+        List<ResUserDTO> listUser=pageUser.getContent()
+                        .stream().map(item->this.convertToResUser(item))
+                        .collect(Collectors.toList());
 
         rs.setResult(listUser);
 
@@ -106,6 +98,11 @@ class UserServiceImpl implements UserService {
             Optional<Company> company= Optional.ofNullable(this.companyService.getById(user.getCompany().getId()));
             user.setCompany(company.isPresent()?company.get():null);
         }
+
+        if(user.getRole()!=null){
+            Role r=this.roleService.getById(user.getRole().getId());
+            user.setRole(r!=null?r:null);
+        }
         return this.userRepository.save(user);
     }
 
@@ -120,6 +117,11 @@ class UserServiceImpl implements UserService {
             if(userDTO.getCompany()!=null){
                 Optional<Company> company= Optional.ofNullable(this.companyService.getById(userDTO.getCompany().getId()));
                 user.setCompany(company.isPresent()?company.get():null);
+            }
+
+            if(userDTO.getRole()!=null){
+                Role r=this.roleService.getById(userDTO.getRole().getId());
+                user.setRole(r!=null?r:null);
             }
             user=this.userRepository.save(user);
         }
@@ -183,6 +185,7 @@ class UserServiceImpl implements UserService {
     public ResUserDTO convertToResUser(User user) {
         ResUserDTO res=new ResUserDTO();
         ResUserDTO.CompanyUser companyUser=new ResUserDTO.CompanyUser();
+        ResUserDTO.RoleUser roleUser=new ResUserDTO.RoleUser();
 
         res.setId(user.getId());
         res.setAddress(user.getAddress());
@@ -198,6 +201,14 @@ class UserServiceImpl implements UserService {
             companyUser.setName(user.getCompany().getName());
             res.setCompanyUser(companyUser);
         }
+
+        if(user.getRole()!=null){
+            roleUser.setId(user.getCompany().getId());
+            roleUser.setName(user.getCompany().getName());
+            res.setRole(roleUser);
+        }
+
+
         return res;
     }
 
