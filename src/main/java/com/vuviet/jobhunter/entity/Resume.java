@@ -1,47 +1,33 @@
 package com.vuviet.jobhunter.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.vuviet.jobhunter.util.SecurityUtil;
-import com.vuviet.jobhunter.util.constant.GenderEnum;
+import com.vuviet.jobhunter.util.constant.ResumeStateEnum;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.time.Instant;
-import java.util.List;
-
 
 @Entity
-@Table(name="users")
+@Table(name = "resumes")
 @Data
-public class User {
+public class Resume {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private  long id;
 
-    private String name;
-
-    @NotBlank(message = "email không được để trống")
+    @NotBlank(message = "Không được để trống email")
     private String email;
 
-    @NotBlank(message = "password không được để trống")
-    private String password;
-
-    private int age;
+    @NotBlank(message = "Không được để trống file (upload cv chưa thành công)")
+    private String url;
 
     @Enumerated(EnumType.STRING)
-    private GenderEnum gender;
+    private ResumeStateEnum status;
 
-    private String address;
-
-    @Column(columnDefinition = "MEDIUMTEXT")
-    private String refreshToken;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
     private Instant createdAt;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
     private Instant updatedAt;
 
     private String createdBy;
@@ -49,16 +35,12 @@ public class User {
     private String updatedBy;
 
     @ManyToOne
-    @JoinColumn(name = "company_id")
-    private Company company;
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @ManyToOne
-    @JoinColumn(name = "role_id")
-    private Role role;
-
-    @OneToMany(mappedBy = "user",fetch = FetchType.LAZY)
-    @JsonIgnore
-    List<Resume> resumes;
+    @JoinColumn(name = "job_id")
+    private Job job;
 
     @PrePersist
     public void handleBeforeCreate(){

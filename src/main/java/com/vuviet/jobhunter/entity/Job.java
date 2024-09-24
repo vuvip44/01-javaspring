@@ -1,5 +1,6 @@
 package com.vuviet.jobhunter.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.vuviet.jobhunter.util.SecurityUtil;
 import com.vuviet.jobhunter.util.constant.LevelEnum;
@@ -28,6 +29,7 @@ public class Job {
 
     private int quantity;
 
+    @Enumerated(EnumType.STRING)
     private LevelEnum level;
 
     @Column(columnDefinition = "MEDIUMTEXT")
@@ -56,6 +58,10 @@ public class Job {
     @JoinTable(name="job_skill",joinColumns = @JoinColumn(name = "job_id"),
     inverseJoinColumns = @JoinColumn(name = "skill_id"))
     private List<Skill> skills;
+
+    @OneToMany(mappedBy = "job",fetch = FetchType.LAZY)
+    @JsonIgnore
+    List<Resume> resumes;
 
     @PrePersist
     public void handleBeforeCreate(){
