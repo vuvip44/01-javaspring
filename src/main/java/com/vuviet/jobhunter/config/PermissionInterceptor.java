@@ -5,7 +5,7 @@ import com.vuviet.jobhunter.entity.Role;
 import com.vuviet.jobhunter.entity.User;
 import com.vuviet.jobhunter.service.UserService;
 import com.vuviet.jobhunter.util.SecurityUtil;
-import com.vuviet.jobhunter.util.error.IdInvalidException;
+import com.vuviet.jobhunter.util.error.PermissionException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,10 +47,10 @@ public class PermissionInterceptor implements HandlerInterceptor {
                                     && item.getMethod().equals(httpMethod));
 
                     if(isAllow==false){
-                        throw new IdInvalidException("Bạn không đủ quyền truy cập");
+                        throw new PermissionException("Bạn không đủ quyền truy cập");
                     }
                 } else {
-                    throw new IdInvalidException("Bạn không đủ quyền truy cập");
+                    throw new PermissionException("Bạn không đủ quyền truy cập");
                 }
             }
         }
