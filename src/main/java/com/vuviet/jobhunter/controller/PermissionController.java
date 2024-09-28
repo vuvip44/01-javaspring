@@ -58,6 +58,10 @@ public class PermissionController {
         if(permission==null){
             throw new IdInvalidException("Id "+permissionDTO.getId()+" không tồn tại");
         }
+
+        if(this.permissionService.isSameName(permissionDTO)){
+            throw new IdInvalidException("Permission đã tồn tại");
+        }
         return ResponseEntity.ok(this.permissionService.updatePermission(permissionDTO));
     }
 

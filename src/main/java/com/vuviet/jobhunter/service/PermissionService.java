@@ -23,6 +23,8 @@ public interface PermissionService {
     ResultPaginationDTO getAllPermission(Specification<Permission> spec, Pageable pageable);
 
     void delete(long id);
+
+    boolean isSameName(Permission p);
 }
 
 @Service
@@ -96,5 +98,16 @@ class PermissionServiceImpl implements PermissionService{
         currentPermission.getRoles().forEach(role->role.getPermissions().remove(currentPermission));
 
         this.permissionRespository.delete(currentPermission);
+    }
+
+    @Override
+    public boolean isSameName(Permission p) {
+        Permission permission=this.getById(p.getId());
+        if(permission!=null){
+            if(permission.getName().equals(p.getName())){
+                return true;
+            }
+        }
+        return false;
     }
 }

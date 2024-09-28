@@ -48,7 +48,7 @@ public class SecurityUtil {
 
         List<String> listAuthority=new ArrayList<>();
         listAuthority.add("ROLE_USER_CREATE");
-        listAuthority.add("ROLE_USER-UPDATE");
+        listAuthority.add("ROLE_USER_UPDATE");
 
         // @formatter:off
         JwtClaimsSet claims = JwtClaimsSet.builder()

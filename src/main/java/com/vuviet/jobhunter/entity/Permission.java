@@ -5,6 +5,7 @@ import com.vuviet.jobhunter.util.SecurityUtil;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.List;
 @Entity
 @Table(name = "permissions")
 @Data
+@NoArgsConstructor
 public class Permission {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -53,5 +55,12 @@ public class Permission {
         this.updatedBy= SecurityUtil.getCurrentUserLogin().isPresent()==true?
                 SecurityUtil.getCurrentUserLogin().get():"";
         this.updatedAt=Instant.now();
+    }
+
+    public Permission(String name, String apiPath, String method, String module) {
+        this.name = name;
+        this.apiPath = apiPath;
+        this.method = method;
+        this.module = module;
     }
 }

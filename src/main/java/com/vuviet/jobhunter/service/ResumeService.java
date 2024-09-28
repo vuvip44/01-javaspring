@@ -1,10 +1,15 @@
 package com.vuviet.jobhunter.service;
 
+import com.turkraft.springfilter.converter.FilterSpecification;
+import com.turkraft.springfilter.converter.FilterSpecificationConverter;
+import com.turkraft.springfilter.parser.FilterParser;
+import com.turkraft.springfilter.parser.node.FilterNode;
 import com.vuviet.jobhunter.entity.Job;
 import com.vuviet.jobhunter.entity.Resume;
 import com.vuviet.jobhunter.entity.User;
 import com.vuviet.jobhunter.entity.response.*;
 import com.vuviet.jobhunter.repository.ResumeRepository;
+import com.vuviet.jobhunter.util.SecurityUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -28,6 +33,8 @@ public interface ResumeService {
     void delete(long id);
 
     ResultPaginationDTO getAll(Specification<Resume> spec, Pageable pageable);
+
+    ResultPaginationDTO getResumeByUser(Pageable pageable);
 }
 
 @Service
@@ -38,10 +45,16 @@ class ResumeServiceImpl implements ResumeService{
 
     private final ResumeRepository resumeRepository;
 
-    ResumeServiceImpl(UserService userService, JobService jobService, ResumeRepository resumeRepository) {
+    private final FilterParser filterParser;
+
+    private final FilterSpecificationConverter filterSpecificationConverter;
+
+    ResumeServiceImpl(UserService userService, JobService jobService, ResumeRepository resumeRepository, FilterParser filterParser, FilterSpecificationConverter filterSpecificationConverter) {
         this.userService = userService;
         this.jobService = jobService;
         this.resumeRepository = resumeRepository;
+        this.filterParser = filterParser;
+        this.filterSpecificationConverter = filterSpecificationConverter;
     }
 
     @Override
@@ -88,12 +101,18 @@ class ResumeServiceImpl implements ResumeService{
         res.setId(resume.getId());
         res.setEmail(resume.getEmail());
         res.setUrl(resume.getUrl());
+        res.setStatus(resume.getStatus());
         res.setCreatedAt(resume.getCreatedAt());
         res.setCreatedBy(resume.getCreatedBy());
         res.setUpdatedAt(resume.getUpdatedAt());
         res.setUpdatedBy(resume.getUpdatedBy());
+
         res.setJob(new ResFetchResumeDTO.JobResume(resume.getJob().getId(), resume.getJob().getName()));
         res.setUser(new ResFetchResumeDTO.UserResume(resume.getUser().getId(), resume.getUser().getName()));
+
+        if(resume.getJob()!=null){
+            res.setCompanyName(resume.getJob().getCompany().getName());
+        }
         return res;
     }
 
@@ -127,6 +146,32 @@ class ResumeServiceImpl implements ResumeService{
         rs.setMeta(mt);
 
         List<ResFetchResumeDTO> list=pageResume.getContent()
+                .stream().map(item->this.getResume(item))
+                .collect(Collectors.toList());
+        rs.setResult(list);
+        return rs;
+    }
+
+    @Override
+    public ResultPaginationDTO getResumeByUser(Pageable pageable) {
+        String email= SecurityUtil.getCurrentUserLogin().isPresent()?
+                SecurityUtil.getCurrentUserLogin().get() : "";
+
+        FilterNode node=filterParser.parse("email='"+email+"'");
+        FilterSpecification<Resume> spec=filterSpecificationConverter.convert(node);
+        Page<Resume> resumePage=this.resumeRepository.findAll(spec,pageable);
+
+        ResultPaginationDTO rs=new ResultPaginationDTO();
+        Meta meta=new Meta();
+
+        meta.setPage(pageable.getPageNumber());
+        meta.setPageSize(pageable.getPageSize());
+
+        meta.setPages(resumePage.getTotalPages());
+        meta.setTotal(resumePage.getTotalElements());
+
+        rs.setMeta(meta);
+        List<ResFetchResumeDTO> list=resumePage.getContent()
                 .stream().map(item->this.getResume(item))
                 .collect(Collectors.toList());
         rs.setResult(list);

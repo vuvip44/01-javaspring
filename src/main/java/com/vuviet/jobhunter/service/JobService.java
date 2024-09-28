@@ -1,8 +1,10 @@
 package com.vuviet.jobhunter.service;
 
+import com.vuviet.jobhunter.entity.Company;
 import com.vuviet.jobhunter.entity.Job;
 import com.vuviet.jobhunter.entity.Skill;
 import com.vuviet.jobhunter.entity.response.*;
+import com.vuviet.jobhunter.repository.CompanyRepository;
 import com.vuviet.jobhunter.repository.JobRepository;
 import com.vuviet.jobhunter.repository.SkillRepository;
 import org.springframework.data.domain.Page;
@@ -19,7 +21,7 @@ public interface JobService {
 
     Job getById(long id);
 
-    ResUpdateJobDTO updateJob(Job job);
+    ResUpdateJobDTO updateJob(Job job,Job jodDB);
 
     void deleteJob(Job job);
 
@@ -31,10 +33,13 @@ class JobServiceImpl implements JobService{
 
     private final SkillRepository skillRepository;
 
+    private final CompanyRepository companyRepository;
 
-    JobServiceImpl(JobRepository jobRepository, SkillRepository skillRepository) {
+
+    JobServiceImpl(JobRepository jobRepository, SkillRepository skillRepository, CompanyRepository companyRepository) {
         this.jobRepository = jobRepository;
         this.skillRepository = skillRepository;
+        this.companyRepository = companyRepository;
     }
 
     @Override
@@ -49,6 +54,13 @@ class JobServiceImpl implements JobService{
 
             List<Skill> dbSkills=this.skillRepository.findByIdIn(reqSkills);
             job.setSkills(dbSkills);
+        }
+
+        if(job.getCompany()!=null){
+            Optional<Company> company=this.companyRepository.findById(job.getCompany().getId());
+            if(company.isPresent()){
+                job.setCompany(company.get());
+            }
         }
         Job currentJob=this.jobRepository.save(job);
 
@@ -86,18 +98,34 @@ class JobServiceImpl implements JobService{
     }
 
     @Override
-    public ResUpdateJobDTO updateJob(Job job) {
+    public ResUpdateJobDTO updateJob(Job job,Job jobDB) {
         if(job.getSkills()!=null){
             List<Long> rqskills=new ArrayList<>();
             for(Skill s: job.getSkills()){
                 rqskills.add(s.getId());
             }
             List<Skill> skill=this.skillRepository.findByIdIn(rqskills);
-            job.setSkills(skill);
+            jobDB.setSkills(skill);
         }
-        Job currentJob= this.jobRepository.save(job);
+        if(job.getCompany()!=null){
+            Optional<Company> companyOptional=this.companyRepository.findById(job.getCompany().getId());
+            if(companyOptional.isPresent()){
+                jobDB.setCompany(companyOptional.get());
+            }
+        }
+
+        jobDB.setName(job.getName());
+        jobDB.setSalary(job.getSalary());
+        jobDB.setQuantity(job.getQuantity());
+        jobDB.setLocation(job.getLocation());
+        jobDB.setLevel(job.getLevel());
+        jobDB.setStartDate(job.getStartDate());
+        jobDB.setEndDate(job.getEndDate());
+        jobDB.setActive(job.isActive());
+
+        Job currentJob= this.jobRepository.save(jobDB);
         ResUpdateJobDTO res=new ResUpdateJobDTO();
-        res.setId(currentJob.getId());
+        res.setId(job.getId());
         res.setName(currentJob.getName());
         res.setSalary(currentJob.getSalary());
         res.setQuantity(currentJob.getQuantity());
@@ -108,6 +136,7 @@ class JobServiceImpl implements JobService{
         res.setActive(currentJob.isActive());
         res.setUpdateAt(currentJob.getUpdatedAt());
         res.setUpdateBy(currentJob.getUpdatedBy());
+
 
         return res;
     }

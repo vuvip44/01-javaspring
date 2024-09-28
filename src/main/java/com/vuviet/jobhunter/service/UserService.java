@@ -56,11 +56,11 @@ class UserServiceImpl implements UserService {
     }
     @Override
     public ResultPaginationDTO getAllUsers(Specification<User> spec, Pageable pageable) {
-        Page<User> pageUser=this.userRepository.findAll(spec,pageable);
+        Page<User> pageUser = this.userRepository.findAll(spec, pageable);
         ResultPaginationDTO rs = new ResultPaginationDTO();
         Meta mt = new Meta();
 
-        mt.setPage(pageable.getPageNumber()+1);
+        mt.setPage(pageable.getPageNumber() + 1);
         mt.setPageSize(pageable.getPageSize());
 
         mt.setPages(pageUser.getTotalPages());
@@ -68,12 +68,12 @@ class UserServiceImpl implements UserService {
 
         rs.setMeta(mt);
 
-        List<ResUserDTO> listUser=pageUser.getContent()
-                        .stream().map(item->this.convertToResUser(item))
-                        .collect(Collectors.toList());
+        // remove sensitive data
+        List<ResUserDTO> listUser = pageUser.getContent()
+                .stream().map(item -> this.convertToResUser(item))
+                .collect(Collectors.toList());
 
         rs.setResult(listUser);
-
 
         return rs;
     }
@@ -120,8 +120,8 @@ class UserServiceImpl implements UserService {
             }
 
             if(userDTO.getRole()!=null){
-                Role r=this.roleService.getById(userDTO.getRole().getId());
-                user.setRole(r!=null?r:null);
+               Optional<Role> role= Optional.ofNullable(this.roleService.getById(userDTO.getRole().getId()));
+               user.setRole(role.isPresent()?role.get():null);
             }
             user=this.userRepository.save(user);
         }
@@ -183,32 +183,29 @@ class UserServiceImpl implements UserService {
 
     @Override
     public ResUserDTO convertToResUser(User user) {
-        ResUserDTO res=new ResUserDTO();
-        ResUserDTO.CompanyUser companyUser=new ResUserDTO.CompanyUser();
-        ResUserDTO.RoleUser roleUser=new ResUserDTO.RoleUser();
-
-        res.setId(user.getId());
-        res.setAddress(user.getAddress());
-        res.setEmail(user.getEmail());
-        res.setGender(user.getGender());
-        res.setAge(user.getAge());
-        res.setName(user.getName());
-        res.setCreatedAt(user.getCreatedAt());
-        res.setUpdatedAt(user.getUpdatedAt());
-
-        if(user.getCompany()!=null){
-            companyUser.setId(user.getCompany().getId());
-            companyUser.setName(user.getCompany().getName());
-            res.setCompanyUser(companyUser);
+        ResUserDTO res = new ResUserDTO();
+        ResUserDTO.CompanyUser com = new ResUserDTO.CompanyUser();
+        ResUserDTO.RoleUser roleUser = new ResUserDTO.RoleUser();
+        if (user.getCompany() != null) {
+            com.setId(user.getCompany().getId());
+            com.setName(user.getCompany().getName());
+            res.setCompanyUser(com);
         }
 
-        if(user.getRole()!=null){
-            roleUser.setId(user.getCompany().getId());
-            roleUser.setName(user.getCompany().getName());
+        if (user.getRole() != null) {
+            roleUser.setId(user.getRole().getId());
+            roleUser.setName(user.getRole().getName());
             res.setRole(roleUser);
         }
 
-
+        res.setId(user.getId());
+        res.setEmail(user.getEmail());
+        res.setName(user.getName());
+        res.setAge(user.getAge());
+        res.setUpdatedAt(user.getUpdatedAt());
+        res.setCreatedAt(user.getCreatedAt());
+        res.setGender(user.getGender());
+        res.setAddress(user.getAddress());
         return res;
     }
 
