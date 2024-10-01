@@ -45,7 +45,8 @@ public class SecurityConfiguration {
                 "/api/v1/auth/login",
                 "/api/v1/auth/refresh",
                 "/storage/**",
-
+                "/api/v1/email",
+                "/api/v1/email/**",
                 "/api/v1/auth/register"
         };
         http
@@ -53,9 +54,9 @@ public class SecurityConfiguration {
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers(whiteList).permitAll()
-                        .requestMatchers(HttpMethod.GET,"/api/v1/companies").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/api/v1/jobs").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/api/v1/skills").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/v1/companies/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/v1/jobs/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/api/v1/skills/**").permitAll()
                         .anyRequest().permitAll()
 
                 )

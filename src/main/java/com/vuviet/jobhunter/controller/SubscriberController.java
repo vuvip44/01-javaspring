@@ -4,6 +4,7 @@ import com.vuviet.jobhunter.entity.Subscriber;
 import com.vuviet.jobhunter.repository.UserRepository;
 import com.vuviet.jobhunter.service.SubscriberService;
 import com.vuviet.jobhunter.service.UserService;
+import com.vuviet.jobhunter.util.SecurityUtil;
 import com.vuviet.jobhunter.util.annotation.ApiMessage;
 import com.vuviet.jobhunter.util.error.IdInvalidException;
 import jakarta.validation.Valid;
@@ -41,5 +42,13 @@ public class SubscriberController {
             throw new IdInvalidException("Id "+subscriberDTO.getId()+" không tồn tại");
         }
         return ResponseEntity.ok(this.subscriberService.update(subscriberDTO));
+    }
+
+    @PostMapping("/subscribers/skills")
+    @ApiMessage("Get subscriber's skill")
+    public ResponseEntity<Subscriber> getSubscribersSkill() throws IdInvalidException{
+        String email= SecurityUtil.getCurrentUserLogin().isPresent()==true?
+                SecurityUtil.getCurrentUserLogin().get() : "";
+        return ResponseEntity.ok(this.subscriberService.getByEmail(email));
     }
 }
