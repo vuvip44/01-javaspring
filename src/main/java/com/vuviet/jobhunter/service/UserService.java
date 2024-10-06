@@ -39,6 +39,8 @@ public interface UserService {
     void updateUserToken(String token,String email);
 
     User getUserByRefreshTokenAndEmail(String token,String email);
+
+    void UpdatePassword(String newPassword, User user);
 }
 
 @Service
@@ -224,5 +226,12 @@ class UserServiceImpl implements UserService {
 
         return this.userRepository.findByRefreshTokenAndEmail(token, email);
     }
+
+    @Override
+    public void UpdatePassword(String newPassword, User user) {
+        user.setPassword(newPassword);
+        this.userRepository.save(user);
+    }
+
 
 }
